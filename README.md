@@ -1,4 +1,4 @@
-# Quake III X-Mod
+# Quake III X-Mod (Black Edition)
 Custom extensions for patching Quake 3 1.11 - 1.16n (beta version)
 
 ###### Installation & Requirements
@@ -23,6 +23,13 @@ Custom extensions for patching Quake 3 1.11 - 1.16n (beta version)
 - resolving favorite servers by domain name
 - shared q3config saving
 - optimization: removed some debug info
+
+###### Black Edition Features
+- crosshair pulse effect when picking up items (`cg_crosshairPulse`)
+<!-- - simple player outline rendering with customizable modes (`cg_drawOutline` - 0: off, 1: enemies only, 2: teammates only, 3: all) -->
+- stack hit sounds - combine multiple hits into single sound (`cg_stackHitSounds`, `cg_stackHitSoundsTimeout`)
+- reward stacking system - queue up to 10 rewards for sequential display
+- enhanced simple items mode with "big" option for larger icons (`cg_simpleItems 2`)
 
 ###### Buf fixes
 - some big maps loading fixed

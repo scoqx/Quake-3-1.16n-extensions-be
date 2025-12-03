@@ -1734,9 +1734,9 @@ void CG_Player( centity_t *cent ) {
 		return;
 	}
 
-	if ( cg_drawOutline.integer ) {
-		CG_AddOutline( &legs, cent );
-	}
+	// if ( cg_drawOutline.integer ) {
+	// 	CG_AddOutline( &legs, cent );
+	// }
 
 	//
 	// add the torso
@@ -1757,9 +1757,9 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team );
 
-	if ( cg_drawOutline.integer ) {
-		CG_AddOutline( &torso, cent );
-	}
+	// if ( cg_drawOutline.integer ) {
+	// 	CG_AddOutline( &torso, cent );
+	// }
 
 	//
 	// add the head
@@ -1779,9 +1779,9 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
 
-	if ( cg_drawOutline.integer ) {
-		CG_AddOutline( &head, cent );
-	}
+	// if ( cg_drawOutline.integer ) {
+	// 	CG_AddOutline( &head, cent );
+	// }
 
 #if CGX_FREEZE
 	if (cg_enableBreath.integer || (cgx_winterEffects.integer & CGX_WINTER_BREATH))
