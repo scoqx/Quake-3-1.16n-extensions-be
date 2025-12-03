@@ -1583,6 +1583,65 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 CG_Player
 ===============
 */
+/*
+==================
+CG_AddOutline
+==================
+*/
+static void CG_AddOutline( refEntity_t *ent, centity_t *cent ) {
+	clientInfo_t	*ci;
+	refEntity_t		outline;
+	int				clientNum;
+	qboolean		isEnemy;
+	team_t			myTeam;
+
+	clientNum = cent->currentState.clientNum;
+
+	if ( !cg_drawOutline.integer || clientNum < 0 || clientNum >= MAX_CLIENTS ) {
+		return;
+	}
+
+	ci = &cgs.clientinfo[clientNum];
+	if ( !ci->infoValid ) {
+		return;
+	}
+
+	if ( ( cent->currentState.number == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson ) ||
+		 ( cent->currentState.eFlags & EF_DEAD ) ||
+		 ( cent->currentState.powerups & ( 1 << PW_INVIS ) ) ) {
+		return;
+	}
+
+	myTeam = cgs.clientinfo[cg.predictedPlayerState.clientNum].team;
+	isEnemy = ( ci->team != myTeam && ci->team != TEAM_SPECTATOR && myTeam != TEAM_SPECTATOR );
+
+	if ( !( ( cg_drawOutline.integer == 1 && isEnemy ) ||
+			( cg_drawOutline.integer == 2 && !isEnemy ) ||
+			( cg_drawOutline.integer == 3 ) ) ) {
+		return;
+	}
+
+	// Create outline entity
+	memcpy( &outline, ent, sizeof( refEntity_t ) );
+	
+	// Use outline shader
+	outline.customShader = isEnemy ? cgs.media.outlineShader : cgs.media.teamOutlineShader;
+	
+	// Set outline color
+	if ( isEnemy ) {
+		outline.shaderRGBA[0] = 255;
+		outline.shaderRGBA[1] = 0;
+		outline.shaderRGBA[2] = 0;
+	} else {
+		outline.shaderRGBA[0] = 0;
+		outline.shaderRGBA[1] = 0;
+		outline.shaderRGBA[2] = 255;
+	}
+	outline.shaderRGBA[3] = 255;
+
+	trap_R_AddRefEntityToScene( &outline );
+}
+
 void CG_Player( centity_t *cent ) {
 	clientInfo_t	*ci;
 	refEntity_t		legs;
@@ -1675,6 +1734,10 @@ void CG_Player( centity_t *cent ) {
 		return;
 	}
 
+	if ( cg_drawOutline.integer ) {
+		CG_AddOutline( &legs, cent );
+	}
+
 	//
 	// add the torso
 	//
@@ -1694,6 +1757,10 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team );
 
+	if ( cg_drawOutline.integer ) {
+		CG_AddOutline( &torso, cent );
+	}
+
 	//
 	// add the head
 	//
@@ -1711,6 +1778,10 @@ void CG_Player( centity_t *cent ) {
 	head.renderfx = renderfx;
 
 	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
+
+	if ( cg_drawOutline.integer ) {
+		CG_AddOutline( &head, cent );
+	}
 
 #if CGX_FREEZE
 	if (cg_enableBreath.integer || (cgx_winterEffects.integer & CGX_WINTER_BREATH))

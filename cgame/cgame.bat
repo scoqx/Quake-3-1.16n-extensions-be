@@ -1,9 +1,9 @@
 @echo off
 
 setlocal
-set "PATH=..\..\bin_nt;%PATH%"
+set "PATH=..\..\bin_nt;..\..\lcc\bin;%PATH%"
 
-mkdir vm
+if not exist vm mkdir vm
 cd vm
 
 set cc=lcc -DQ3_VM -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ui %1
@@ -77,4 +77,9 @@ cd ..
 move cgame\vm\cgame.qvm baseq3\vm\cgame.qvm
 
 :quit
+if errorlevel 1 (
+    echo.
+    echo Build failed! Check errors above.
+    pause
+)
 cd ..

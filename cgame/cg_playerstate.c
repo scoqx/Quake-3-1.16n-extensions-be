@@ -246,20 +246,85 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 
 /*
 ==================
+pushReward
+==================
+*/
+static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount)
+{
+	int i;
+	float *color;
+	
+	// Check if this medal is currently being displayed
+	if (cg.rewardStack >= 0)
+	{
+		color = CG_FadeColor(cg.rewardTime, REWARD_TIME);
+		if (color && cg.rewardShader[0] == shader)
+		{
+			// Same medal type is currently showing, update its count
+			cg.rewardCount[0] = rewardCount;
+			cg.rewardTime = cg.time; // Reset timer
+			return;
+		}
+		
+		// Check if the same medal type is already in the stack and combine them
+		for (i = 0; i <= cg.rewardStack; i++)
+		{
+			if (cg.rewardShader[i] == shader)
+			{
+				// Same medal type found in stack, update count
+				cg.rewardCount[i] = rewardCount;
+				cg.rewardSound[i] = sfx;
+				return;
+			}
+		}
+	}
+	
+	// New medal type, add to stack
+	if (cg.rewardStack < (MAX_REWARDSTACK - 1))
+	{
+		cg.rewardStack++;
+		cg.rewardSound[cg.rewardStack] = sfx;
+		cg.rewardShader[cg.rewardStack] = shader;
+		cg.rewardCount[cg.rewardStack] = rewardCount;
+	}
+}
+
+/*
+==================
 CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	int			highScore;
+	static int	stackedDmg = 0;
+	int			hits;
+	int			deltaTime;
+	int			damage;
+	int			index;
 
 	// hit changes
-	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
+	hits = ps->persistant[PERS_HITS] - ops->persistant[PERS_HITS];
+	
+	if ( hits > 0 ) {
+		damage = hits;
+		
+		// stack damage if enabled and within timeout
+		if ( cg_stackHitSounds.integer && cgs.lastHitTime > 0 ) {
+			deltaTime = cg.time - cgs.lastHitTime;
+			if ( deltaTime < cg_stackHitSoundsTimeout.integer ) {
+				stackedDmg += damage;
+				damage = stackedDmg;
+			} else {
+				stackedDmg = 0;
+			}
+		} else {
+			stackedDmg = 0;
+		}
+		
+		cgs.lastHitTime = cg.time;
+		
 		// X-MOD: pro mode hitsounds, based on baseq3a code
 		if (cgx_hitsounds.integer > 0) {
-			int damage, index;
-			
-			damage = ps->persistant[PERS_HITS] - ops->persistant[PERS_HITS];
-			
 			if (damage > 75) index = 3;
 			else if (damage > 50) index = 2;
 			else if (damage > 25) index = 1;
@@ -273,8 +338,18 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		} else {
 			trap_S_StartLocalSound(cgs.media.hitSound, CHAN_LOCAL);
 		}
-	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
+	} else if ( hits < 0 ) {
+		cgs.lastHitTime = cg.time;
+		stackedDmg = 0;
 		trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL );
+	} else {
+		// hits == 0, clear stacked damage if timeout exceeded
+		if ( cg_stackHitSounds.integer && cgs.lastHitTime > 0 ) {
+			deltaTime = cg.time - cgs.lastHitTime;
+			if ( deltaTime >= cg_stackHitSoundsTimeout.integer ) {
+				stackedDmg = 0;
+			}
+		}
 	}
 
 	// health changes of more than -1 should make pain sounds
@@ -294,27 +369,23 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	if ( ps->persistant[PERS_REWARD_COUNT] > ops->persistant[PERS_REWARD_COUNT] ) {
 		switch ( ps->persistant[PERS_REWARD] ) {
 		case REWARD_IMPRESSIVE:
-			trap_S_StartLocalSound( cgs.media.impressiveSound, CHAN_ANNOUNCER );
 			cg.rewardTime = cg.time;
-			cg.rewardShader = cgs.media.medalImpressive;
-			cg.rewardCount = ps->persistant[PERS_IMPRESSIVE_COUNT];
+			pushReward(cgs.media.impressiveSound, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
 			break;
 		case REWARD_EXCELLENT:
-			trap_S_StartLocalSound( cgs.media.excellentSound, CHAN_ANNOUNCER );
 			cg.rewardTime = cg.time;
-			cg.rewardShader = cgs.media.medalExcellent;
-			cg.rewardCount = ps->persistant[PERS_EXCELLENT_COUNT];
+			pushReward(cgs.media.excellentSound, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
 			break;
 		case REWARD_DENIED:
 			trap_S_StartLocalSound( cgs.media.deniedSound, CHAN_ANNOUNCER );
 			break;
 		case REWARD_GAUNTLET:
-			trap_S_StartLocalSound( cgs.media.humiliationSound, CHAN_ANNOUNCER );
 			// if we are the killer and not the killee, show the award
 			if ( ps->stats[STAT_HEALTH] ) {
 				cg.rewardTime = cg.time;
-				cg.rewardShader = cgs.media.medalGauntlet;
-				cg.rewardCount = ps->persistant[PERS_GAUNTLET_FRAG_COUNT];
+				pushReward(cgs.media.humiliationSound, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
+			} else {
+				trap_S_StartLocalSound( cgs.media.humiliationSound, CHAN_ANNOUNCER );
 			}
 			break;
 		default:

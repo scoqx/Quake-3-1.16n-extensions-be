@@ -201,6 +201,54 @@ static void CG_Speaker( centity_t *cent ) {
 
 /*
 ==================
+CG_AddSimpleItem
+==================
+*/
+static void CG_AddSimpleItem( centity_t *cent ) {
+	refEntity_t		ent;
+	gitem_t			*item;
+	int				modelIndex;
+
+	modelIndex = cent->currentState.modelindex;
+	item = &bg_itemlist[modelIndex];
+
+	memset( &ent, 0, sizeof( ent ) );
+	ent.reType = RT_SPRITE;
+	VectorCopy( cent->lerpOrigin, ent.origin );
+	ent.radius = 14;
+	ent.customShader = cg_items[modelIndex].icon;
+	ent.shaderRGBA[0] = 255;
+	ent.shaderRGBA[1] = 255;
+	ent.shaderRGBA[2] = 255;
+	ent.shaderRGBA[3] = 255;
+
+	if ( cg_simpleItems.integer == 2 ) {
+		switch ( item->giType ) {
+			case IT_ARMOR:
+			case IT_WEAPON:
+				ent.radius = 20;
+				ent.origin[2] += 15;
+				break;
+			case IT_AMMO:
+				break;
+			case IT_HEALTH:
+				ent.origin[2] += 10;
+				break;
+			case IT_HOLDABLE:
+			case IT_POWERUP:
+				ent.radius = 20;
+				ent.origin[2] += 10;
+				break;
+			default:
+				break;
+		}
+	}
+
+	trap_R_AddRefEntityToScene( &ent );
+}
+
+/*
+==================
 CG_Item
 ==================
 */
@@ -224,16 +272,7 @@ static void CG_Item( centity_t *cent ) {
 
 	item = &bg_itemlist[ es->modelindex ];
 	if ( cg_simpleItems.integer && item->giType != IT_TEAM ) {
-		memset( &ent, 0, sizeof( ent ) );
-		ent.reType = RT_SPRITE;
-		VectorCopy( cent->lerpOrigin, ent.origin );
-		ent.radius = 14;
-		ent.customShader = cg_items[es->modelindex].icon;
-		ent.shaderRGBA[0] = 255;
-		ent.shaderRGBA[1] = 255;
-		ent.shaderRGBA[2] = 255;
-		ent.shaderRGBA[3] = 255;
-		trap_R_AddRefEntityToScene(&ent);
+		CG_AddSimpleItem( cent );
 		return;
 	}
 

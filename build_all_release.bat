@@ -1,5 +1,17 @@
-call compile_cgame
-call compile_ui
+@echo off
+cd /d "%~dp0"
+
+call compile_cgame.bat
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
+
+call compile_ui.bat
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
 
 set "pakname={X-Mod}.pk3"
 
@@ -10,3 +22,5 @@ cd baseq3
 move %pakname% ..\%pakname%
 
 cd ..
+
+pause

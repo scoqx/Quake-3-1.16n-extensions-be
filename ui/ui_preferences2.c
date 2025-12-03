@@ -51,10 +51,11 @@ ADVANCED OPTIONS MENU
 #define ID_SCOREBOX				152
 #define ID_SHAREDCONFIG			153
 #define	ID_HUD					154
+#define ID_STACKHITSOUNDS		155
 
 #define ID_BACK					190
 
-#define MAX_INFO_MESSAGES		28
+#define MAX_INFO_MESSAGES		29
 static void Preferences2_StatusBar( void *self ) {	
 	static const char *info_messages[MAX_INFO_MESSAGES][2] = {
 		{ "Toggles display ingame rewards", "On screen center - Excellent, Impressive etc."},
@@ -82,6 +83,7 @@ static void Preferences2_StatusBar( void *self ) {
 		{ "Sets default weapon switch after respawn","If server sends you BFG but you want shotgun" },
 		{ "Draw ingame lagometer", "" },
 		{ "Sets hitsounds default - one hit sound", "Other options 4 sounds based on damage done"},		
+		{ "Damage stacking for hitsounds", "0 - off, 1 - on"},
 		{ "Sets ingame scoreboard type", ""},
 		{ "Toggles display total weapon accuracy", ""},
 		{ "Toggles display of scorebox in right lower corner", ""},
@@ -119,6 +121,7 @@ typedef struct {
 	menulist_s			centerprint;
 	menulist_s			deafultweapon;
 	menulist_s			hitsounds;
+	menuradiobutton_s	stackhitsounds;
 	menufield_s			fov;
 	menufield_s			zoomfov;
 	menulist_s			lagometer;
@@ -249,6 +252,7 @@ static void Preferences2_SetMenuItems( void ) {
 	s_preferences2.deafultweapon.curvalue = abs((int)trap_Cvar_VariableValue("cg_defaultWeapon") % (WP_NUM_WEAPONS - 1));
 	s_preferences2.lagometer.curvalue = abs((int)trap_Cvar_VariableValue("cg_lagometer") % ArrLen(lagometer_items));
 	s_preferences2.hitsounds.curvalue = abs((int)trap_Cvar_VariableValue("cg_hitsounds") % ArrLen(hitsounds_items));
+	s_preferences2.stackhitsounds.curvalue = trap_Cvar_VariableValue("cg_stackHitSounds") != 0;
 	
 	s_preferences2.centerprint.curvalue = abs((int)(trap_Cvar_VariableValue("cg_centerPrintAlpha")) * 2) % 3;
 	s_preferences2.drawgun.curvalue = abs((int)trap_Cvar_VariableValue("cg_drawGun")) % ArrLen(drawgun_items);
@@ -381,6 +385,10 @@ static void Preferences2_Event( void* ptr, int notification ) {
 
 	case ID_HITSOUNDS:
 		trap_Cvar_SetValue( "cg_hitsounds", s_preferences2.hitsounds.curvalue );
+		break;
+
+	case ID_STACKHITSOUNDS:
+		trap_Cvar_SetValue( "cg_stackHitSounds", s_preferences2.stackhitsounds.curvalue );
 		break;
 
 	case ID_CENTER_PRINT:
@@ -664,6 +672,15 @@ static void Preferences2_MenuInit( void ) {
 	s_preferences2.hitsounds.generic.y = y;
 	s_preferences2.hitsounds.itemnames = hitsounds_items;
 	y += BIGCHAR_HEIGHT+2;
+	s_preferences2.stackhitsounds.generic.type = MTYPE_RADIOBUTTON;
+	s_preferences2.stackhitsounds.generic.name = "Stack hitsounds:";
+	s_preferences2.stackhitsounds.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_preferences2.stackhitsounds.generic.x = PREFERENCES_X_POS_2;
+	s_preferences2.stackhitsounds.generic.callback = Preferences2_Event;
+	s_preferences2.stackhitsounds.generic.statusbar	= Preferences2_StatusBar;
+	s_preferences2.stackhitsounds.generic.id = ID_STACKHITSOUNDS;
+	s_preferences2.stackhitsounds.generic.y = y;
+	y += BIGCHAR_HEIGHT+2;
 	s_preferences2.scoreboard.generic.type = MTYPE_SPINCONTROL;
 	s_preferences2.scoreboard.generic.name = "Scoreboard:";
 	s_preferences2.scoreboard.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -783,6 +800,7 @@ static void Preferences2_MenuInit( void ) {
 	Menu_AddItem( &s_preferences2.menu, &s_preferences2.centerprint );	
 	Menu_AddItem( &s_preferences2.menu, &s_preferences2.lagometer );
 	Menu_AddItem( &s_preferences2.menu, &s_preferences2.hitsounds );
+	Menu_AddItem( &s_preferences2.menu, &s_preferences2.stackhitsounds );
 	Menu_AddItem( &s_preferences2.menu, &s_preferences2.scorebox );
 	Menu_AddItem( &s_preferences2.menu, &s_preferences2.scoreboard );
 	Menu_AddItem( &s_preferences2.menu, &s_preferences2.accuracy );

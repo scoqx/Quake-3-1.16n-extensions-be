@@ -440,6 +440,7 @@ GAME OPTIONS MENU
 
 #define ID_CROSSHAIR_COLOR		138
 #define ID_CROSSHAIR_SIZE		139
+#define ID_CROSSHAIR_PULSE		144
 
 #define ID_EFFECTS				140
 //#define ID_SHAREDCONFIG			140
@@ -448,7 +449,7 @@ GAME OPTIONS MENU
 
 #define	NUM_CROSSHAIRS			10
 
-#define MAX_INFO_MESSAGES	13
+#define MAX_INFO_MESSAGES	14
 static void UI_Preferences_StatusBar( void *self ) {	
 	static const char *info_messages[MAX_INFO_MESSAGES][2] = {
 		{ "Sets ingame crosshair", "" },
@@ -464,6 +465,7 @@ static void UI_Preferences_StatusBar( void *self ) {
 		{ "Allows autodowloading content from pure servers", "" },
 		{ "Sets crosshair color", "" },
 		{ "Sets crosshair size", "" },
+		{ "Toggles crosshair pulse effect", "" },
 		//{ "Toggles auto saving q3config.cfg into baseq3 folder", "Fixes problems of not saving config after game exit"}
 	};
 
@@ -480,7 +482,8 @@ typedef struct {
 	menulist_s			crosshair;
 	menulist_s			crosshaircolor;
 	menulist_s			crosshairsize;
-	menuradiobutton_s	simpleitems;
+	menuradiobutton_s	crosshairpulse;
+	menulist_s			simpleitems;
 	menuradiobutton_s	brass;
 	menuradiobutton_s	wallmarks;
 	menuradiobutton_s	dynamiclights;
@@ -577,6 +580,13 @@ static const char *crosshairsize_items[] =
 	0
 };
 
+static const char *simpleitems_items[] = {
+	"off",
+	"enabled",
+	"big",
+	0
+};
+
 static const char *drawnames_items[] = {
 	"off",
 	"name only",
@@ -589,7 +599,8 @@ static void Preferences_SetMenuItems( void ) {
 	char buf[32];
 	
 	s_preferences.crosshair.curvalue		= abs((int)trap_Cvar_VariableValue( "cg_drawCrosshair" )) % NUM_CROSSHAIRS;
-	s_preferences.simpleitems.curvalue		= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
+	s_preferences.crosshairpulse.curvalue	= trap_Cvar_VariableValue( "cg_crosshairPulse" ) != 0;
+	s_preferences.simpleitems.curvalue		= abs((int)trap_Cvar_VariableValue( "cg_simpleItems" )) % ArrLen(simpleitems_items);
 	s_preferences.brass.curvalue			= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
 	s_preferences.wallmarks.curvalue		= trap_Cvar_VariableValue( "cg_marks" ) != 0;
 	s_preferences.identifytarget.curvalue	= abs((int)trap_Cvar_VariableValue( "cg_drawCrosshairNames" )) % ArrLen(drawnames_items);
@@ -652,6 +663,10 @@ static void Preferences_Event( void* ptr, int notification ) {
 	case ID_CROSSHAIR_SIZE:		
 		crosshairsize = s_preferences.crosshairsize.curvalue * 4 + 16;
 		trap_Cvar_SetValue("cg_crosshairSize", crosshairsize);
+		break;
+
+	case ID_CROSSHAIR_PULSE:
+		trap_Cvar_SetValue( "cg_crosshairPulse", s_preferences.crosshairpulse.curvalue );
 		break;
 
 	case ID_SIMPLEITEMS:
@@ -846,9 +861,18 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.crosshairsize.itemnames = crosshairsize_items;
 	s_preferences.crosshairsize.generic.statusbar   = UI_Preferences_StatusBar;
 
+	y += BIGCHAR_HEIGHT + 2;
+	s_preferences.crosshairpulse.generic.type        = MTYPE_RADIOBUTTON;
+	s_preferences.crosshairpulse.generic.name	      = "Crosshair pulse:";
+	s_preferences.crosshairpulse.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.crosshairpulse.generic.callback    = Preferences_Event;
+	s_preferences.crosshairpulse.generic.id          = ID_CROSSHAIR_PULSE;
+	s_preferences.crosshairpulse.generic.x	          = PREFERENCES_X_POS;
+	s_preferences.crosshairpulse.generic.y	          = y;
+	s_preferences.crosshairpulse.generic.statusbar   = UI_Preferences_StatusBar;
 
 	y += BIGCHAR_HEIGHT * 2 + 2;
-	s_preferences.simpleitems.generic.type        = MTYPE_RADIOBUTTON;
+	s_preferences.simpleitems.generic.type        = MTYPE_SPINCONTROL;
 	s_preferences.simpleitems.generic.name	      = "Simple Items:";
 	s_preferences.simpleitems.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.simpleitems.generic.callback    = Preferences_Event;
@@ -856,6 +880,7 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.simpleitems.generic.x	          = PREFERENCES_X_POS;
 	s_preferences.simpleitems.generic.y	          = y;
 	s_preferences.simpleitems.generic.statusbar   = UI_Preferences_StatusBar;
+	s_preferences.simpleitems.itemnames           = simpleitems_items;
 
 	y += BIGCHAR_HEIGHT;
 	s_preferences.wallmarks.generic.type          = MTYPE_RADIOBUTTON;
@@ -1000,6 +1025,7 @@ static void Preferences_MenuInit( void ) {
 	Menu_AddItem( &s_preferences.menu, &s_preferences.allowdownload );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.crosshaircolor );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.crosshairsize);
+	Menu_AddItem( &s_preferences.menu, &s_preferences.crosshairpulse );
 
 	//Menu_AddItem( &s_preferences.menu, &s_preferences.sharedconfig );
 #if CGX_Z_EFFECTS

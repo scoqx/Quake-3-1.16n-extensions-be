@@ -1,9 +1,9 @@
 @echo off
 
 setlocal
-set "PATH=..\..\bin_nt;%PATH%"
+set "PATH=..\..\bin_nt;..\..\lcc\bin;%PATH%"
 
-mkdir vm
+if not exist vm mkdir vm
 cd vm
 set cc=lcc -DQ3_VM -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ui %1
 

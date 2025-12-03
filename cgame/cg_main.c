@@ -199,6 +199,11 @@ vmCvar_t	cg_teamOverlayUserinfo;
 #if CGX_FREEZE
 vmCvar_t	cg_enableBreath;
 #endif
+// Black Edition
+vmCvar_t	cg_crosshairPulse;
+vmCvar_t	cg_stackHitSounds;
+vmCvar_t	cg_stackHitSoundsTimeout;
+vmCvar_t	cg_drawOutline;
 
 
 typedef struct {
@@ -355,8 +360,8 @@ cvarTable_t		cvarTable[] = {
 	{ &com_maxfps, "com_maxfps", "125", CVAR_ARCHIVE | CGX_NOGHOST_COMPATIBLE },
 	{ &cl_maxpackets, "cl_maxpackets", "40", CVAR_ARCHIVE | CGX_NOGHOST_COMPATIBLE },				
 	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE | CGX_NOGHOST_COMPATIBLE },
-
-#if CGX_DEBUG
+	
+	#if CGX_DEBUG
 	{ &cgx_debug, "cgx_debug", "1", CVAR_TEMP },
 #endif
 	// resolving favorite servers by domain name
@@ -381,7 +386,12 @@ cvarTable_t		cvarTable[] = {
 #endif
 	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
 	{ &cg_blood, "com_blood", "1", CVAR_ARCHIVE },
-	{ &cg_syncronousClients, "g_syncronousClients", "0", 0 },	// communicated by systeminfo	
+	{ &cg_syncronousClients, "g_syncronousClients", "0", 0 },	// communicated by systeminfo
+	// Black Edition
+	{ &cg_crosshairPulse, "cg_crosshairPulse", "0", CVAR_ARCHIVE },
+	{ &cg_drawOutline, "cg_drawOutline", "0", CVAR_ARCHIVE },
+	{ &cg_stackHitSounds, "cg_stackHitSounds", "1", CVAR_ARCHIVE },
+	{ &cg_stackHitSoundsTimeout, "cg_stackHitSoundsTimeout", "500", CVAR_ARCHIVE },
 };
 
 int		cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -1030,6 +1040,10 @@ static void CG_RegisterGraphics( void ) {
 		}
 	}
 
+	// Outline shaders
+	cgs.media.outlineShader = trap_R_RegisterShader( "outlineMedium" );
+	cgs.media.teamOutlineShader = trap_R_RegisterShader( "outlineMedium" );
+
 	if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
 		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
@@ -1202,6 +1216,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	memset( cg_entities, 0, sizeof(cg_entities) );
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
+	
+	// Initialize reward stack to empty
+	cg.rewardStack = -1;
 	
 	memset( &vScreen, 0, sizeof( vScreen ) );
 	memset( &hud, 0, sizeof( hud ) );

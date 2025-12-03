@@ -1682,35 +1682,55 @@ CG_DrawReward
 static void CG_DrawReward( void ) { 
 	float	*color;
 	int		i;
-	float	x, y;
+	float	x, y, w, h;
+	char	buf[32];
 
 	if ( !cg_drawRewards.integer ) {
 		return;
 	}
+
 	color = CG_FadeColor( cg.rewardTime, REWARD_TIME );
 	if ( !color ) {
-		return;
+		if (cg.rewardStack > 0)
+		{
+			// Move to next reward in stack
+			for (i = 0; i < cg.rewardStack; i++)
+			{
+				cg.rewardSound[i] = cg.rewardSound[i + 1];
+				cg.rewardShader[i] = cg.rewardShader[i + 1];
+				cg.rewardCount[i] = cg.rewardCount[i + 1];
+			}
+			cg.rewardTime = cg.time;
+			cg.rewardStack--;
+
+			color = CG_FadeColor( cg.rewardTime, REWARD_TIME );
+			if (color && cg.rewardSound[0])
+			{
+				trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
+			}
+		}
+		else
+		{
+			return;
+		}
 	}
 	
 	trap_R_SetColor(color);
 
-	if ( cg_drawRewards.integer > 1 || cg.rewardCount > 10) {
-		char buf[6];		
-		y = 35; // 
-		x = vScreen.hwidth - ICON_SIZE/2;
-		CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader );
-		Com_sprintf( buf, sizeof( buf ), "%d", cg.rewardCount );
+	w = ICON_SIZE - 4;
+	h = ICON_SIZE - 4;
+	y = 46;
+	x = vScreen.hwidth - w / 2.0f;
+
+	CG_DrawPic( x, y, w, h, cg.rewardShader[0] );
+
+	if (cg.rewardCount[0] > 1)
+	{
+		Com_sprintf( buf, sizeof( buf ), "%d", cg.rewardCount[0] );
 		CG_DrawStringExt( 
-			(vScreen.width - strlen( buf ) * SMALLCHAR_WIDTH) / 2 - 1, 
-			y + ICON_SIZE, 
+			x + w / 2.0f, 
+			y + h, 
 			buf, color, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
-	} else {				
-		y = 56;
-		x = vScreen.hwidth - cg.rewardCount * ICON_SIZE / 2;
-		for (i = 0; i < cg.rewardCount; i++) {
-			CG_DrawPic(x, y, ICON_SIZE - 4, ICON_SIZE - 4, cg.rewardShader);
-			x += ICON_SIZE;
-		}		
 	}
 
 	trap_R_SetColor(NULL);
@@ -2319,11 +2339,13 @@ static void CG_DrawCrosshair(void) {
 	w = h = cg_crosshairSize.value;
 
 	// pulse the size of the crosshair when picking up items
-	f = cg.time - cg.itemPickupBlendTime;
-	if ( f > 0 && f < ITEM_BLOB_TIME ) {
-		f /= ITEM_BLOB_TIME;
-		w *= ( 1 + f );
-		h *= ( 1 + f );
+	if (cg_crosshairPulse.integer != 0) {
+		f = cg.time - cg.itemPickupBlendTime;
+		if ( f > 0 && f < ITEM_BLOB_TIME ) {
+			f /= ITEM_BLOB_TIME;
+			w *= ( 1 + f );
+			h *= ( 1 + f );
+		}
 	}
 
 	x = cg_crosshairX.integer;

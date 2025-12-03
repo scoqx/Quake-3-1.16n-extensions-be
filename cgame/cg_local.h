@@ -33,6 +33,7 @@
 #define	SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define	ATTACKER_HEAD_TIME	10000
 #define	REWARD_TIME			3000
+#define	MAX_REWARDSTACK		10
 
 #define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
 
@@ -820,9 +821,11 @@ typedef struct {
 	int			attackerTime;
 
 	// reward medals
+	int			rewardStack;
 	int			rewardTime;
-	int			rewardCount;
-	qhandle_t	rewardShader;
+	int			rewardCount[MAX_REWARDSTACK];
+	qhandle_t	rewardShader[MAX_REWARDSTACK];
+	sfxHandle_t	rewardSound[MAX_REWARDSTACK];
 
 	// warmup countdown
 	int			warmup;
@@ -962,6 +965,8 @@ typedef struct {
 	qhandle_t	lightningShader;
 
 	qhandle_t	friendShader;
+	qhandle_t	outlineShader;
+	qhandle_t	teamOutlineShader;
 
 	qhandle_t	balloonShader;
 	qhandle_t	connectionShader;
@@ -1203,6 +1208,9 @@ typedef struct {
 	// this will be set to the server's g_delagHitscan
 	int				delagHitscan;
 	//unlagged - client options
+	
+	// stack hit sounds
+	int				lastHitTime;
 } cgs_t;
 
 //X-Mod: virtual screen sizes
@@ -1498,6 +1506,12 @@ void CG_BodyObituary( entityState_t *ent, char *targetName );
 qboolean Q_Isfreeze( int clientNum );
 void CG_AddGib( localEntity_t *le );
 #endif//freeze
+
+// Black Edition
+extern	vmCvar_t		cg_crosshairPulse;
+extern	vmCvar_t		cg_stackHitSounds;
+extern	vmCvar_t		cg_stackHitSoundsTimeout;
+extern	vmCvar_t		cg_drawOutline;
 
 // cg_scoreboard_osps.c
 qboolean CG_DrawOSPScoreboard( void );
