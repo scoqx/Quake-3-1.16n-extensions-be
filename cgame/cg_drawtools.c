@@ -172,6 +172,129 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 	trap_R_SetColor( NULL );
 }
 
+/*
+==================
+CG_DrawStringWidth
+
+Calculate the width of a string, skipping color codes
+==================
+*/
+static int CG_DrawStringWidth( const char *string, int charWidth, int maxChars ) {
+	const char *s = string;
+	int width = 0;
+	int cnt = 0;
+
+	if (maxChars <= 0)
+		maxChars = 32767;
+
+	while ( *s && cnt < maxChars ) {
+		if ( Q_IsColorString( s ) ) {
+			s += 2;
+			continue;
+		}
+		width += charWidth;
+		cnt++;
+		s++;
+	}
+
+	return width;
+}
+
+/*
+==================
+CG_DrawStringExtNew
+
+Draws a multi-colored string with a drop shadow, optionally forcing
+to a fixed color, with horizontal alignment support.
+
+Coordinates are at 640 by 480 virtual resolution
+
+flags:
+- UI_DROPSHADOW: draw drop shadow
+- CG_FORCECOLOR: force color (ignore color codes)
+- UI_LEFT, UI_CENTER, UI_RIGHT: horizontal alignment
+
+x-mod: maxChars = -1 uses charsetShader32
+==================
+*/
+void CG_DrawStringExtNew( int x, int y, const char *string, const float *setColor, 
+		int flags, int charWidth, int charHeight, int maxChars ) {
+	vec4_t		color;
+	const char	*s;
+	int			xx, yy;
+	int			cnt;
+	int			width;
+	qboolean	forceColor = (flags & CG_FORCECOLOR) != 0;
+	qboolean	shadow = (flags & UI_DROPSHADOW) != 0;
+	qhandle_t	charset = charHeight > 32 || maxChars < 0 ? cgs.media.charsetShader32 : cgs.media.charsetShader;
+
+	if (maxChars <= 0)
+		maxChars = 32767; // do them all!
+
+	// Calculate string width for alignment
+	width = CG_DrawStringWidth( string, charWidth, maxChars );
+
+	// Apply horizontal alignment
+	switch( flags & UI_FORMATMASK ) {
+		case UI_CENTER:
+			x -= width / 2;
+			break;
+
+		case UI_RIGHT:
+			x -= width;
+			break;
+
+		case UI_LEFT:
+		default:
+			break;
+	}
+
+	// draw the drop shadow
+	if (shadow) {
+		//X-Mod: little adjust shadow for small fonts
+		int shadowSize = charHeight <= hud.minshadow ? 1 : 2;
+		color[0] = color[1] = color[2] = 0;
+		color[3] = setColor[3];
+		trap_R_SetColor( color );
+		s = string;
+		xx = x + shadowSize;
+		yy = y + shadowSize;
+		cnt = 0;
+		while ( *s && cnt < maxChars) {
+			if ( Q_IsColorString( s ) ) {
+				s += 2;
+				continue;
+			}
+			CG_DrawChar( xx, yy, charWidth, charHeight, *s, charset );
+			cnt++;
+			xx += charWidth;
+			s++;
+		}
+	}
+
+	// draw the colored text
+	s = string;
+	xx = x;
+	cnt = 0;
+	trap_R_SetColor( setColor );
+	while ( *s && cnt < maxChars) {
+		if ( Q_IsColorString( s ) ) {
+			if ( !forceColor ) {
+				memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				color[3] = setColor[3];
+				trap_R_SetColor( color );
+			}
+			s += 2;
+			continue;
+		}
+		CG_DrawChar( xx, y, charWidth, charHeight, *s, charset );
+		xx += charWidth;
+		cnt++;
+		s++;
+	}
+	trap_R_SetColor( NULL );
+}
+
 void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
 	float	color[4];
 

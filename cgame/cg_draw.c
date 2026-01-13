@@ -1729,10 +1729,7 @@ static void CG_DrawReward( void ) {
 		vec4_t textColor;
 		Com_sprintf( buf, sizeof( buf ), "%d", cg.rewardCount[0] );
 		Vector4Copy( color, textColor );
-		UI_DrawProportionalString( 
-			x + w / 2, 
-			y + h, 
-			buf, UI_CENTER | UI_SMALLFONT, textColor );
+		CG_DrawStringExtNew(x + w / 2, y + h, buf, textColor, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
 
 	trap_R_SetColor(NULL);
@@ -2624,13 +2621,11 @@ static void CG_DrawIntermission( void ) {
 	trap_Cvar_Update(&cgx_intermissionStats);
 	if (cgx_intermissionStats.integer || cg_autoShowStats.integer) {
 		CG_statsWindow(WFX_FADEIN);
-	} else if (!cg.statsWindow && !(cgx_helpShowed.integer & 1) && cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR) {
+	} else if (!cg.statsWindow && cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR) {
 		char key[32];
 		trap_Cvar_VariableStringBuffer("cgx_scores_key", key, sizeof key);
 		CG_DrawStringExt(8, SCREEN_HEIGHT - 8 - 8, va("Press %s to see your stats", *key ? key : "+scores key"), 
 			colorWhite, qfalse, qtrue, WINDOW_FONTWIDTH, WINDOW_FONTHEIGHT, 0);
-		if (cgx_helpShowed.integer == 0)
-			trap_Cvar_Set("cgx_help_showed", "1");
 	}
 }
 

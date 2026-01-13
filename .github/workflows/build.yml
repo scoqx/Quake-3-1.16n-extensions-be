@@ -37,10 +37,15 @@ jobs:
           chmod +x tools/q3lcc tools/q3asm tools/q3cpp tools/q3rcc 2>/dev/null || true
           make
 
+      - name: Create archive with pk3 file
+        working-directory: build/qvm
+        run: |
+          zip -j X-Mod.zip "{X-Mod}.pk3"
+
       - uses: actions/upload-artifact@v4
         with:
           name: qvm-linux
-          path: build/qvm/{X-Mod}.pk3
+          path: build/qvm/X-Mod.zip
           if-no-files-found: error
           retention-days: 5
 
@@ -62,5 +67,5 @@ jobs:
           prerelease: false
           overwrite: true
           files: |
-            qvm-linux/{X-Mod}.pk3
+            qvm-linux/X-Mod.zip
           generate_release_notes: false

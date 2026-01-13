@@ -60,14 +60,18 @@ static void CG_Viewpos_f (void) {
 
 // nemesis/OSP client statistics window 
 static void CG_StatsWindowDown_f(void) {
-	if (cg.snap->ps.pm_type == PM_INTERMISSION && cgx_intermissionStats.integer)
+	// During intermission, ignore TAB if autoShowStats or intermissionStats is enabled
+	if (cg.snap->ps.pm_type == PM_INTERMISSION && 
+		(cgx_intermissionStats.integer || cg_autoShowStats.integer))
 		return;
 
 	CG_statsWindow(0);
 }
 
 static void CG_StatsWindowUp_f(void) {
-	if (cg.snap->ps.pm_type == PM_INTERMISSION && cgx_intermissionStats.integer)
+	// During intermission, ignore TAB if autoShowStats or intermissionStats is enabled
+	if (cg.snap->ps.pm_type == PM_INTERMISSION && 
+		(cgx_intermissionStats.integer || cg_autoShowStats.integer))
 		return;
 
 	CG_statsWindowFree(0);
@@ -283,48 +287,6 @@ static void CGX_PushRewardDebug(sfxHandle_t sfx, qhandle_t shader, int rewardCou
 	}
 }
 
-/*
-==================
-CGX_Award1_f
-Debug command to trigger Excellent award
-==================
-*/
-static void CGX_Award1_f(void) {
-	if (!cg.snap) {
-		return;
-	}
-	cg.rewardTime = cg.time;
-	CGX_PushRewardDebug(cgs.media.excellentSound, cgs.media.medalExcellent, 1);
-}
-
-/*
-==================
-CGX_Award2_f
-Debug command to trigger Impressive award
-==================
-*/
-static void CGX_Award2_f(void) {
-	if (!cg.snap) {
-		return;
-	}
-	cg.rewardTime = cg.time;
-	CGX_PushRewardDebug(cgs.media.impressiveSound, cgs.media.medalImpressive, 1);
-}
-
-/*
-==================
-CGX_Award3_f
-Debug command to trigger Gauntlet/Humiliation award
-==================
-*/
-static void CGX_Award3_f(void) {
-	if (!cg.snap) {
-		return;
-	}
-	cg.rewardTime = cg.time;
-	CGX_PushRewardDebug(cgs.media.humiliationSound, cgs.media.medalGauntlet, 1);
-}
-
 typedef struct {
 	char	*cmd;
 	void	(*function)(void);
@@ -364,9 +326,6 @@ static consoleCommand_t	commands[] = {
 	{ "followprev", CGX_Followprev_f },
 	{ "followtarget", CGX_Followtarget_f },
 	{ "echox", CGX_Echo_f },
-	{ "award1", CGX_Award1_f },
-	{ "award2", CGX_Award2_f },
-	{ "award3", CGX_Award3_f },
 
 #if CGX_FREEZE//freeze
 	{ "drop", CG_Drop_f },

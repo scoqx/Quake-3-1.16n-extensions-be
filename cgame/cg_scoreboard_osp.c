@@ -492,9 +492,11 @@ qboolean CG_DrawOSPScoreboard( void ) {
 		return qfalse;
 	}
 
-	if ( cg.showScores || 
-		 cg.predictedPlayerState.pm_type == PM_DEAD ||
-		 cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+	// During intermission, always show scoreboard with full opacity, regardless of showScores state
+	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+		fade = 1.0;
+		fadeColor = colorWhite;
+	} else if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD ) {
 		fade = 1.0;
 		fadeColor = colorWhite;
 	} else {

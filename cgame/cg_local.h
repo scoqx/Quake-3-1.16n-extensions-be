@@ -1637,9 +1637,13 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 void CG_DrawString( float x, float y, const char *string, 
 				   float charWidth, float charHeight, const float *modulate );
 
+// Flags for CG_DrawStringExtNew
+#define CG_FORCECOLOR	0x00010000
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
+void CG_DrawStringExtNew( int x, int y, const char *string, const float *setColor, 
+		int flags, int charWidth, int charHeight, int maxChars );
 void CG_DrawBigString( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawBigString2( int x, int y, const char *s, float alpha );
