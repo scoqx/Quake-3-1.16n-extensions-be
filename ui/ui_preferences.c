@@ -39,8 +39,11 @@ static char* AdvancedEffects_artlist[] =
 #define	ID_BULLET_SPARKS	206
 #define ID_PLASMA_TRAIL		207
 #define ID_EXPLOSION_SPARKS	208
+#define ID_PROJECTILE_TRAIL	209
+#define ID_DAMAGE_DRAW		210
+#define ID_CROSSHAIR_PULSE_AE	211
 
-#define MAX_EFFECTS_INFO_MESSAGES 9
+#define MAX_EFFECTS_INFO_MESSAGES 12
 
 static void UI_AdvancedEffects_StatusBar( void *self ) {	
 	static const char *info_messages[MAX_EFFECTS_INFO_MESSAGES][2] = {
@@ -52,7 +55,10 @@ static void UI_AdvancedEffects_StatusBar( void *self ) {
 		{ "Toggles lightning gun sparks", "" },
 		{ "Toggles bullet sparks", "For shotgun and machinegun" },
 		{ "Sets plasma trail effect", "" },
-		{ "Toggles explosion sparks", "For rockets and grenades" }
+		{ "Toggles explosion sparks", "For rockets and grenades" },
+		{ "Toggles projectile trails", "Disables smoke from rockets, grenades, plasma and bubble trails" },
+		{ "Toggles blood on screen when taking damage", "Disables damage indicator on screen" },
+		{ "Toggles crosshair pulse effect", "Makes crosshair pulse when aiming at enemy" }
 	};
 
 	UIX_CommonStatusBar(self, ID_RAIL, MAX_EFFECTS_INFO_MESSAGES, info_messages);
@@ -75,6 +81,9 @@ typedef struct {
 	menuradiobutton_s	rockettrail;
 	menuradiobutton_s	lgsparks;
 	menuradiobutton_s	bulletsparks;
+	menuradiobutton_s	projectiletrail;
+	menuradiobutton_s	damagedraw;
+	menuradiobutton_s	crosshairpulse;
 } AdvancedEffects_t;
 
 static AdvancedEffects_t	s_effects;
@@ -129,6 +138,10 @@ static void AdvancedEffects_SetMenuItems( void ) {
 	s_effects.explosparks.curvalue	= i & WE_Z_EXPLOSIONS ? 1 : 0;
 	s_effects.lgsparks.curvalue		= i & WE_Z_LG_SPARKS ? 1 : 0;
 	s_effects.bulletsparks.curvalue	= i & WE_Z_BULLET_SPARKS ? 1 : 0;
+
+	s_effects.projectiletrail.curvalue = trap_Cvar_VariableValue( "cg_noProjectileTrail" ) == 0 ? 1 : 0;
+	s_effects.damagedraw.curvalue = trap_Cvar_VariableValue( "cg_damageDraw" ) != 0 ? 1 : 0;
+	s_effects.crosshairpulse.curvalue = trap_Cvar_VariableValue( "cg_crosshairPulse" ) != 0 ? 1 : 0;
 
 	i = trap_Cvar_VariableValue( "cg_railTrailTime" );
 
@@ -194,6 +207,15 @@ static void AdvancedEffects_Event( void* ptr, int event ) {
 			else i = 1200;
 
 			trap_Cvar_SetValue( "cg_railTrailTime", i );
+			break;
+		case ID_PROJECTILE_TRAIL:
+			trap_Cvar_SetValue( "cg_noProjectileTrail", s_effects.projectiletrail.curvalue ? 0 : 1 );
+			break;
+		case ID_DAMAGE_DRAW:
+			trap_Cvar_SetValue( "cg_damageDraw", s_effects.damagedraw.curvalue ? 1 : 0 );
+			break;
+		case ID_CROSSHAIR_PULSE_AE:
+			trap_Cvar_SetValue( "cg_crosshairPulse", s_effects.crosshairpulse.curvalue ? 1 : 0 );
 			break;
 		case ID_EFFECTSBACK:
 			AdvancedEffects_SaveChanges();
@@ -389,6 +411,36 @@ static void UI_AdvancedEffects_Menu( void ) {
 	s_effects.plasmatrail.itemnames = plasmatrail_items;
 	s_effects.plasmatrail.generic.statusbar   = UI_AdvancedEffects_StatusBar;
 
+	y += BIGCHAR_HEIGHT+2;
+	s_effects.projectiletrail.generic.type          = MTYPE_RADIOBUTTON;
+	s_effects.projectiletrail.generic.name	      = "Rocket / Grenade Smoke:";
+	s_effects.projectiletrail.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_effects.projectiletrail.generic.callback      = AdvancedEffects_Event;
+	s_effects.projectiletrail.generic.id            = ID_PROJECTILE_TRAIL;
+	s_effects.projectiletrail.generic.x	          = PREFERENCES_X_POS;
+	s_effects.projectiletrail.generic.y	          = y;
+	s_effects.projectiletrail.generic.statusbar   = UI_AdvancedEffects_StatusBar;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_effects.damagedraw.generic.type          = MTYPE_RADIOBUTTON;
+	s_effects.damagedraw.generic.name	      = "Damage on Screen:";
+	s_effects.damagedraw.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_effects.damagedraw.generic.callback      = AdvancedEffects_Event;
+	s_effects.damagedraw.generic.id            = ID_DAMAGE_DRAW;
+	s_effects.damagedraw.generic.x	          = PREFERENCES_X_POS;
+	s_effects.damagedraw.generic.y	          = y;
+	s_effects.damagedraw.generic.statusbar   = UI_AdvancedEffects_StatusBar;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_effects.crosshairpulse.generic.type          = MTYPE_RADIOBUTTON;
+	s_effects.crosshairpulse.generic.name	      = "Crosshair Pulse:";
+	s_effects.crosshairpulse.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_effects.crosshairpulse.generic.callback      = AdvancedEffects_Event;
+	s_effects.crosshairpulse.generic.id            = ID_CROSSHAIR_PULSE_AE;
+	s_effects.crosshairpulse.generic.x	          = PREFERENCES_X_POS;
+	s_effects.crosshairpulse.generic.y	          = y;
+	s_effects.crosshairpulse.generic.statusbar   = UI_AdvancedEffects_StatusBar;
+
 	Menu_AddItem( &s_effects.menu, &s_effects.rail );
 	Menu_AddItem( &s_effects.menu, &s_effects.railtime );
 	Menu_AddItem( &s_effects.menu, &s_effects.rocketexpl );
@@ -398,6 +450,9 @@ static void UI_AdvancedEffects_Menu( void ) {
 	Menu_AddItem( &s_effects.menu, &s_effects.lgsparks );
 	Menu_AddItem( &s_effects.menu, &s_effects.bulletsparks );
 	Menu_AddItem( &s_effects.menu, &s_effects.plasmatrail );
+	Menu_AddItem( &s_effects.menu, &s_effects.projectiletrail );
+	Menu_AddItem( &s_effects.menu, &s_effects.damagedraw );
+	Menu_AddItem( &s_effects.menu, &s_effects.crosshairpulse );
 
 	Menu_AddItem( &s_effects.menu, &s_effects.banner );
 	Menu_AddItem( &s_effects.menu, &s_effects.framel );

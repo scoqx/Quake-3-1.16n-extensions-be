@@ -1,6 +1,17 @@
 # Quake III X-Mod (Black Edition)
 Custom extensions for patching Quake 3 1.11 - 1.16n (beta version)
 
+**Black Edition** - Extended version with additional features and improvements.
+
+###### Black Edition Features (0.96.X)
+- crosshair pulse effect when picking up items (`cg_crosshairPulse`)
+- stack hit sounds - combine multiple hits into single sound (`cg_stackHitSounds`, `cg_stackHitSoundsTimeout`)
+- reward stacking system - queue up to 10 rewards for sequential display
+- enhanced simple items mode with "big" option for larger icons (`cg_simpleItems 2`)
+- disable projectile trails - turn off smoke from rockets and grenades (`cg_noProjectileTrail 0/1`)
+- disable damage effects - turn off blood overlay on screen when taking damage (`cg_damageDraw 0/1`)
+- auto-show stats - automatically display stats table at end of game (`cg_autoShowStats 0/1`)
+
 ###### Installation & Requirements
 - requires quake 3 arena version 1.16n or 1.11 - 1.15c
 - to install unzip {X-Mod}.pk3 to baseq3 folder of your quake 3 arena installation path
@@ -24,12 +35,7 @@ Custom extensions for patching Quake 3 1.11 - 1.16n (beta version)
 - shared q3config saving
 - optimization: removed some debug info
 
-###### Black Edition Features
-- crosshair pulse effect when picking up items (`cg_crosshairPulse`)
-<!-- - simple player outline rendering with customizable modes (`cg_drawOutline` - 0: off, 1: enemies only, 2: teammates only, 3: all) -->
-- stack hit sounds - combine multiple hits into single sound (`cg_stackHitSounds`, `cg_stackHitSoundsTimeout`)
-- reward stacking system - queue up to 10 rewards for sequential display
-- enhanced simple items mode with "big" option for larger icons (`cg_simpleItems 2`)
+
 
 ###### Buf fixes
 - some big maps loading fixed
@@ -49,10 +55,11 @@ Custom extensions for patching Quake 3 1.11 - 1.16n (beta version)
 - other minor bugs
 
 ###### Author
+- Black Edition - (c) 2026 diwoc
 - X-Mod - (c) 2018-2019 NaViGaToR (322)
 
 ###### Credits
-- Unlagged 2.01 - (c) 2006 Neil “haste” Toronto
+- Unlagged 2.01 - (c) 2006 Neil "haste" Toronto
 - Freeze Tag - (с) 1998, 2001, 2002 by Darrell Bircsak
 - z-effects (c) 2001-2002 Randall "Ravenant" Piatek, Matt McChesney
 - OSP - (c) 2003 Jason "Rhea" Keimig and Team

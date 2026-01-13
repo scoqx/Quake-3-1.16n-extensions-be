@@ -399,6 +399,11 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	vec3_t	up;
 	localEntity_t	*smoke;
 
+	if (cg_noProjectileTrail.integer)
+	{
+		return;
+	}
+
 	up[0] = 0;
 	up[1] = 0;
 	up[2] = 0;

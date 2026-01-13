@@ -237,6 +237,94 @@ static void CGX_Echo_f(void) {
 	CG_Printf("%s\n", message);
 }
 
+/*
+==================
+CGX_PushRewardDebug
+Helper function to push a reward for debugging purposes
+==================
+*/
+static void CGX_PushRewardDebug(sfxHandle_t sfx, qhandle_t shader, int rewardCount)
+{
+	int i;
+	float *color;
+	
+	// Check if this medal is currently being displayed
+	if (cg.rewardStack >= 0)
+	{
+		color = CG_FadeColor(cg.rewardTime, REWARD_TIME);
+		if (color && cg.rewardShader[0] == shader)
+		{
+			// Same medal type is currently showing, update its count
+			cg.rewardCount[0] = rewardCount;
+			cg.rewardTime = cg.time; // Reset timer
+			return;
+		}
+		
+		// Check if the same medal type is already in the stack and combine them
+		for (i = 0; i <= cg.rewardStack; i++)
+		{
+			if (cg.rewardShader[i] == shader)
+			{
+				// Same medal type found in stack, update count
+				cg.rewardCount[i] = rewardCount;
+				cg.rewardSound[i] = sfx;
+				return;
+			}
+		}
+	}
+	
+	// New medal type, add to stack
+	if (cg.rewardStack < (MAX_REWARDSTACK - 1))
+	{
+		cg.rewardStack++;
+		cg.rewardSound[cg.rewardStack] = sfx;
+		cg.rewardShader[cg.rewardStack] = shader;
+		cg.rewardCount[cg.rewardStack] = rewardCount;
+	}
+}
+
+/*
+==================
+CGX_Award1_f
+Debug command to trigger Excellent award
+==================
+*/
+static void CGX_Award1_f(void) {
+	if (!cg.snap) {
+		return;
+	}
+	cg.rewardTime = cg.time;
+	CGX_PushRewardDebug(cgs.media.excellentSound, cgs.media.medalExcellent, 1);
+}
+
+/*
+==================
+CGX_Award2_f
+Debug command to trigger Impressive award
+==================
+*/
+static void CGX_Award2_f(void) {
+	if (!cg.snap) {
+		return;
+	}
+	cg.rewardTime = cg.time;
+	CGX_PushRewardDebug(cgs.media.impressiveSound, cgs.media.medalImpressive, 1);
+}
+
+/*
+==================
+CGX_Award3_f
+Debug command to trigger Gauntlet/Humiliation award
+==================
+*/
+static void CGX_Award3_f(void) {
+	if (!cg.snap) {
+		return;
+	}
+	cg.rewardTime = cg.time;
+	CGX_PushRewardDebug(cgs.media.humiliationSound, cgs.media.medalGauntlet, 1);
+}
+
 typedef struct {
 	char	*cmd;
 	void	(*function)(void);
@@ -276,6 +364,9 @@ static consoleCommand_t	commands[] = {
 	{ "followprev", CGX_Followprev_f },
 	{ "followtarget", CGX_Followtarget_f },
 	{ "echox", CGX_Echo_f },
+	{ "award1", CGX_Award1_f },
+	{ "award2", CGX_Award2_f },
+	{ "award3", CGX_Award3_f },
 
 #if CGX_FREEZE//freeze
 	{ "drop", CG_Drop_f },

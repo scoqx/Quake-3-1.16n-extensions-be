@@ -965,8 +965,6 @@ typedef struct {
 	qhandle_t	lightningShader;
 
 	qhandle_t	friendShader;
-	qhandle_t	outlineShader;
-	qhandle_t	teamOutlineShader;
 
 	qhandle_t	balloonShader;
 	qhandle_t	connectionShader;
@@ -1359,6 +1357,10 @@ extern	vmCvar_t		cgx_predictWeaponTime;
 extern	vmCvar_t		cgx_kickScale;
 extern	vmCvar_t		cgx_playerLean;
 
+extern	vmCvar_t		cg_noProjectileTrail;
+extern	vmCvar_t		cg_damageDraw;
+extern	vmCvar_t		cg_autoShowStats;
+
 extern	vmCvar_t		s_ambient;
 
 extern	vmCvar_t		com_maxfps;
@@ -1511,7 +1513,6 @@ void CG_AddGib( localEntity_t *le );
 extern	vmCvar_t		cg_crosshairPulse;
 extern	vmCvar_t		cg_stackHitSounds;
 extern	vmCvar_t		cg_stackHitSoundsTimeout;
-extern	vmCvar_t		cg_drawOutline;
 
 // cg_scoreboard_osps.c
 qboolean CG_DrawOSPScoreboard( void );

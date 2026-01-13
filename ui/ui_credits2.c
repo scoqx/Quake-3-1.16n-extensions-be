@@ -319,6 +319,7 @@ UI_CreditMenu2_Draw
 
 #define DRAW_W(x) UI_DrawProportionalString( 320, y, x, UI_CENTER|UI_SMALLFONT, color_white );
 #define DRAW_R(x) UI_DrawProportionalString( 320, y, x, UI_CENTER|UI_SMALLFONT, color_red );
+#define DRAW_G(x) UI_DrawProportionalString( 320, y, x, UI_CENTER|UI_SMALLFONT, color_grey );
 #define STEP_Y() y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 #define STEP_Y1() y += 1.65 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 
@@ -326,6 +327,8 @@ UI_CreditMenu2_Draw
 #define DRAW_WSTEP1(x) DRAW_W(x) STEP_Y1()
 #define DRAW_RSTEP(x) DRAW_R(x) STEP_Y()
 #define DRAW_RSTEP1(x) DRAW_R(x) STEP_Y1()
+#define DRAW_GSTEP(x) DRAW_G(x) STEP_Y()
+#define DRAW_GSTEP1(x) DRAW_G(x) STEP_Y1()
 
 static void UI_CreditMenu2_Draw( void ) {
 	int		y;
@@ -348,6 +351,10 @@ static void UI_CreditMenu2_Draw( void ) {
 	DRAW_RSTEP1("Quake III "CGX_NAME)
 	DRAW_WSTEP1("Programming")
 	DRAW_WSTEP1("NaViGaToR (322)")	
+	DRAW_WSTEP1("")
+	DRAW_WSTEP1("")
+	DRAW_GSTEP1("Black Edition - 2026")
+	DRAW_GSTEP1("diwoc")
 	DRAW_WSTEP1("")
 	DRAW_WSTEP1("")
 	DRAW_RSTEP1("Thanks to")

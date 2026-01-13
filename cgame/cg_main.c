@@ -83,6 +83,10 @@ vmCvar_t	cgx_predictWeaponTime;
 vmCvar_t	cgx_kickScale;
 vmCvar_t	cgx_playerLean;
 
+vmCvar_t	cg_noProjectileTrail;
+vmCvar_t	cg_damageDraw;
+vmCvar_t	cg_autoShowStats;
+
 vmCvar_t	s_ambient;
 
 vmCvar_t	com_maxfps;
@@ -203,7 +207,6 @@ vmCvar_t	cg_enableBreath;
 vmCvar_t	cg_crosshairPulse;
 vmCvar_t	cg_stackHitSounds;
 vmCvar_t	cg_stackHitSoundsTimeout;
-vmCvar_t	cg_drawOutline;
 
 
 typedef struct {
@@ -333,6 +336,9 @@ cvarTable_t		cvarTable[] = {
 	{ &cgx_predictWeaponTime, "cg_predictWeaponTime", "0", CVAR_TEMP },
 	{ &cgx_kickScale, "cg_kickScale", "1", CVAR_ARCHIVE },
 	{ &cgx_playerLean, "cg_playerLean", "1", CVAR_ARCHIVE },
+	{ &cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE },
+	{ &cg_damageDraw, "cg_damageDraw", "1", CVAR_ARCHIVE },
+	{ &cg_autoShowStats, "cg_autoShowStats", "0", CVAR_ARCHIVE },
 	{ &s_ambient, "s_ambient", "1", CVAR_ARCHIVE },
 
 	//unlagged - client options
@@ -389,7 +395,6 @@ cvarTable_t		cvarTable[] = {
 	{ &cg_syncronousClients, "g_syncronousClients", "0", 0 },	// communicated by systeminfo
 	// Black Edition
 	{ &cg_crosshairPulse, "cg_crosshairPulse", "0", CVAR_ARCHIVE },
-	{ &cg_drawOutline, "cg_drawOutline", "0", CVAR_ARCHIVE },
 	{ &cg_stackHitSounds, "cg_stackHitSounds", "1", CVAR_ARCHIVE },
 	{ &cg_stackHitSoundsTimeout, "cg_stackHitSoundsTimeout", "500", CVAR_ARCHIVE },
 };
@@ -1039,10 +1044,6 @@ static void CG_RegisterGraphics( void ) {
 			cgs.media.blueFlagShader[i] = trap_R_RegisterShaderNoMip(va("%sicons/iconf_blu%i", fold, i + 1));
 		}
 	}
-
-	// Outline shaders
-	cgs.media.outlineShader = trap_R_RegisterShader( "outlineMedium" );
-	cgs.media.teamOutlineShader = trap_R_RegisterShader( "outlineMedium" );
 
 	if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
 		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );

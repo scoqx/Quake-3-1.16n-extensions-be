@@ -251,41 +251,19 @@ pushReward
 */
 static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount)
 {
-	int i;
-	float *color;
-	
-	// Check if this medal is currently being displayed
-	if (cg.rewardStack >= 0)
-	{
-		color = CG_FadeColor(cg.rewardTime, REWARD_TIME);
-		if (color && cg.rewardShader[0] == shader)
-		{
-			// Same medal type is currently showing, update its count
-			cg.rewardCount[0] = rewardCount;
-			cg.rewardTime = cg.time; // Reset timer
-			return;
-		}
-		
-		// Check if the same medal type is already in the stack and combine them
-		for (i = 0; i <= cg.rewardStack; i++)
-		{
-			if (cg.rewardShader[i] == shader)
-			{
-				// Same medal type found in stack, update count
-				cg.rewardCount[i] = rewardCount;
-				cg.rewardSound[i] = sfx;
-				return;
-			}
-		}
-	}
-	
-	// New medal type, add to stack
 	if (cg.rewardStack < (MAX_REWARDSTACK - 1))
 	{
 		cg.rewardStack++;
 		cg.rewardSound[cg.rewardStack] = sfx;
 		cg.rewardShader[cg.rewardStack] = shader;
 		cg.rewardCount[cg.rewardStack] = rewardCount;
+		
+		// If this is the first reward (stack was empty), start displaying it
+		if (cg.rewardStack == 0)
+		{
+			cg.rewardTime = cg.time;
+			trap_S_StartLocalSound(sfx, CHAN_ANNOUNCER);
+		}
 	}
 }
 
@@ -369,11 +347,9 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	if ( ps->persistant[PERS_REWARD_COUNT] > ops->persistant[PERS_REWARD_COUNT] ) {
 		switch ( ps->persistant[PERS_REWARD] ) {
 		case REWARD_IMPRESSIVE:
-			cg.rewardTime = cg.time;
 			pushReward(cgs.media.impressiveSound, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
 			break;
 		case REWARD_EXCELLENT:
-			cg.rewardTime = cg.time;
 			pushReward(cgs.media.excellentSound, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
 			break;
 		case REWARD_DENIED:
@@ -382,7 +358,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		case REWARD_GAUNTLET:
 			// if we are the killer and not the killee, show the award
 			if ( ps->stats[STAT_HEALTH] ) {
-				cg.rewardTime = cg.time;
 				pushReward(cgs.media.humiliationSound, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
 			} else {
 				trap_S_StartLocalSound( cgs.media.humiliationSound, CHAN_ANNOUNCER );

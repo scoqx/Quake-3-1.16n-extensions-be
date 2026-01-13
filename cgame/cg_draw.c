@@ -1693,7 +1693,6 @@ static void CG_DrawReward( void ) {
 	if ( !color ) {
 		if (cg.rewardStack > 0)
 		{
-			// Move to next reward in stack
 			for (i = 0; i < cg.rewardStack; i++)
 			{
 				cg.rewardSound[i] = cg.rewardSound[i + 1];
@@ -1704,7 +1703,8 @@ static void CG_DrawReward( void ) {
 			cg.rewardStack--;
 
 			color = CG_FadeColor( cg.rewardTime, REWARD_TIME );
-			if (color && cg.rewardSound[0])
+
+			if (color)
 			{
 				trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
 			}
@@ -1726,11 +1726,13 @@ static void CG_DrawReward( void ) {
 
 	if (cg.rewardCount[0] > 1)
 	{
+		vec4_t textColor;
 		Com_sprintf( buf, sizeof( buf ), "%d", cg.rewardCount[0] );
-		CG_DrawStringExt( 
-			x + w / 2.0f, 
+		Vector4Copy( color, textColor );
+		UI_DrawProportionalString( 
+			x + w / 2, 
 			y + h, 
-			buf, color, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+			buf, UI_CENTER | UI_SMALLFONT, textColor );
 	}
 
 	trap_R_SetColor(NULL);
@@ -2620,7 +2622,7 @@ static void CG_DrawIntermission( void ) {
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 
 	trap_Cvar_Update(&cgx_intermissionStats);
-	if (cgx_intermissionStats.integer) {
+	if (cgx_intermissionStats.integer || cg_autoShowStats.integer) {
 		CG_statsWindow(WFX_FADEIN);
 	} else if (!cg.statsWindow && !(cgx_helpShowed.integer & 1) && cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR) {
 		char key[32];

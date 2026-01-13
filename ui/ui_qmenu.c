@@ -27,6 +27,7 @@ vec4_t color_blue	        = {0.00, 0.00, 1.00, 1.00};
 vec4_t color_lightOrange    = {1.00, 0.68, 0.00, 1.00 };
 vec4_t color_orange	        = {1.00, 0.43, 0.00, 1.00};
 vec4_t color_red		    = {1.00, 0.00, 0.00, 1.00};
+vec4_t color_grey	        = {0.50, 0.50, 0.50, 1.00};
 vec4_t color_dim		    = {0.00, 0.00, 0.00, 0.25};
 
 // current color scheme

@@ -850,7 +850,7 @@ void PM_AccuracyShots(pmove_t *pm) {
 }
 
 //none, gaunt, mg, sg, gren, rocket, lg, rail, plasm, rail, bfg, hook
-static int addTimesArr[][WP_NUM_WEAPONS] = {
+int addTimesArr[][WP_NUM_WEAPONS] = {
 	{ 0, 400, 100, 1000, 800, 800, 50, 1500, 100, 200, 400 },
 	{ 0, 400,  50,  500, 400, 400, 50,  100, 100, 800, 400 }
 };
