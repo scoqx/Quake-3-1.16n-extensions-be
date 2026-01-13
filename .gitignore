@@ -17,12 +17,11 @@
 [Rr]eleases/
 x64/
 x86/
-build/
+# Allow build/qvm for CI/CD
+!build/
+build/*
 !build/qvm/
-!build/qvm/Makefile
-!build/qvm/config.mk
-!build/qvm/srcs.mk
-!build/qvm/tools/
+!build/qvm/**
 bld/
 #[Bb]in/
 [Oo]bj/
