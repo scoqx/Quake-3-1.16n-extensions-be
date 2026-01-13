@@ -60,6 +60,7 @@ jobs:
           tag_name: latest-build
           name: Latest Build
           prerelease: false
+          overwrite: true
           files: |
             qvm-linux/{X-Mod}.pk3
           generate_release_notes: false
