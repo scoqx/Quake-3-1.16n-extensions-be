@@ -69,3 +69,8 @@ jobs:
           files: |
             qvm-linux/X-Mod.zip
           generate_release_notes: false
+
+      - name: Update latest-build tag
+        run: |
+          git tag -f latest-build ${{ github.sha }}
+          git push -f origin latest-build
