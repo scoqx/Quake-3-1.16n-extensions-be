@@ -82,13 +82,13 @@ static void Preferences2_StatusBar( void *self ) {
 		//{ "Toggles colored ping on scoreboard","" },
 		{ "Sets default weapon switch after respawn","If server sends you BFG but you want shotgun" },
 		{ "Draw ingame lagometer", "" },
-		{ "Sets hitsounds default - one hit sound", "Other options 4 sounds based on damage done"},		
-		{ "Damage stacking for hitsounds", "0 - off, 1 - on"},
+		{ "Sets hitsounds default - one hit sound", "Other options 4 sounds based on damage done"},
 		{ "Sets ingame scoreboard type", ""},
 		{ "Toggles display total weapon accuracy", ""},
 		{ "Toggles display of scorebox in right lower corner", ""},
 		{ "Toggles auto saving q3config.cfg into baseq3 folder", "Fixes problems of not saving config after game exit"},
-		{ "Sets HUD type", "HP/Armor/Ammo indicators size and etc."}
+		{ "Sets HUD type", "HP/Armor/Ammo indicators size and etc."},
+		{ "Damage stacking for hitsounds", "0 - off, 1 - on"}
 	};
 
 	UIX_CommonStatusBar(self, ID_REWARDS, MAX_INFO_MESSAGES, info_messages);
@@ -673,7 +673,7 @@ static void Preferences2_MenuInit( void ) {
 	s_preferences2.hitsounds.itemnames = hitsounds_items;
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences2.stackhitsounds.generic.type = MTYPE_RADIOBUTTON;
-	s_preferences2.stackhitsounds.generic.name = "Stack hitsounds:";
+	s_preferences2.stackhitsounds.generic.name = "Stack Hitsounds:";
 	s_preferences2.stackhitsounds.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	s_preferences2.stackhitsounds.generic.x = PREFERENCES_X_POS_2;
 	s_preferences2.stackhitsounds.generic.callback = Preferences2_Event;

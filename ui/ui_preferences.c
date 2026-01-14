@@ -58,7 +58,7 @@ static void UI_AdvancedEffects_StatusBar( void *self ) {
 		{ "Toggles explosion sparks", "For rockets and grenades" },
 		{ "Toggles projectile trails", "Disables smoke from rockets, grenades, plasma and bubble trails" },
 		{ "Toggles blood on screen when taking damage", "Disables damage indicator on screen" },
-		{ "Toggles crosshair pulse effect", "Makes crosshair pulse when aiming at enemy" }
+		{ "Toggles crosshair pulse effect", "Makes crosshair pulse when pickup item" }
 	};
 
 	UIX_CommonStatusBar(self, ID_RAIL, MAX_EFFECTS_INFO_MESSAGES, info_messages);
