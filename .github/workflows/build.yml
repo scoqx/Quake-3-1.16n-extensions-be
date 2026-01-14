@@ -64,18 +64,31 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
 
+      - name: Delete existing release and tag
+        run: |
+          # Delete existing release if it exists
+          if gh release view latest-build >/dev/null 2>&1; then
+            gh release delete latest-build -y
+          fi
+          # Delete existing tag if it exists
+          if git tag -l | grep -q "^latest-build$"; then
+            git tag -d latest-build
+            git push origin :latest-build
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest-build tag
+        run: |
+          git tag latest-build ${{ github.sha }}
+          git push origin latest-build
+
       - name: Create latest build release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: latest-build
           name: Latest Build
           prerelease: false
-          overwrite: true
           files: |
             qvm-linux/X-Mod.zip
           generate_release_notes: false
-
-      - name: Update latest-build tag
-        run: |
-          git tag -f latest-build ${{ github.sha }}
-          git push -f origin latest-build
